@@ -79,5 +79,6 @@ figlet.fonts(function(err, fonts) {
 		console.log('└─────> ' + pckg.description);
 		console.log('└─────> v ' + pckg.version);
 		console.log('└─────> Listening on port: ' + port);
+		for( var i = 0 ; i < process.argv.length ; i++ ) if( process.argv[i] == 'midi' ) console.log('└─────> Using midi ');
 	});
 });

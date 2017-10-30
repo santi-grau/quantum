@@ -1,6 +1,8 @@
 uniform vec2 res;
 uniform float time;
 uniform float modSize;
+uniform float spread;
+uniform float pointSize;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -36,14 +38,13 @@ float snoise(vec2 v){
 }
 
 void main() {
-	// vec3 p = vec3( position.x * res.x, position.y * res.y, 0.0 );
-	float px = position.x + snoise( vec2( position.z, position.x ) ) * modSize / 1.6;
-	float py = position.y + snoise( vec2( position.y, position.z ) ) * modSize / 1.6;
+	float px = position.x + snoise( vec2( position.z, position.x  + time ) ) * modSize / 1.6 * ( 1.0 + spread );
+	float py = position.y + snoise( vec2( position.y + time, position.z ) ) * modSize / 1.6 * ( 1.0 + spread );
 
-	// float rotation = snoise( vec2( py, px + time ) ) * M_PI * 2.0;
+	// float rotation = snoise( vec2( py, px + time / 100.0 ) ) * M_PI * 2.0;
 	// px += cos(rotation) * 10.0;
 	// py += sin(rotation) * 10.0;
 
-	gl_PointSize = 1.0;
+	gl_PointSize = pointSize;
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( px, py, 0.0, 1.0 );
 }
