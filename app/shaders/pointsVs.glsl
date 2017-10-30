@@ -1,8 +1,11 @@
-uniform vec2 res;
-uniform float time;
-uniform float modSize;
-uniform float spread;
-uniform float pointSize;
+attribute vec4 lookup;
+
+uniform sampler2D data;
+uniform sampler2D fontTexture;
+uniform vec2 dataRes;
+uniform float scale;
+
+varying vec4 color;
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -38,13 +41,21 @@ float snoise(vec2 v){
 }
 
 void main() {
-	float px = position.x + snoise( vec2( position.z, position.x  + time ) ) * modSize / 1.6 * ( 1.0 + spread );
-	float py = position.y + snoise( vec2( position.y + time, position.z ) ) * modSize / 1.6 * ( 1.0 + spread );
+
+	// vec4 c = texture2D( iChannel0, vUv );
+	// float px = position.x + snoise( vec2( position.z, position.x  + time ) ) * modSize / 1.6 * ( 1.0 + spread );
+	// float py = position.y + snoise( vec2( position.y + time, position.z ) ) * modSize / 1.6 * ( 1.0 + spread );
 
 	// float rotation = snoise( vec2( py, px + time / 100.0 ) ) * M_PI * 2.0;
 	// px += cos(rotation) * 10.0;
 	// py += sin(rotation) * 10.0;
 
-	gl_PointSize = pointSize;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( px, py, 0.0, 1.0 );
+	vec3 p = vec3( position.xy * lookup.zw * scale, 0.0 );
+	
+	float lux = ( lookup.x + p.x / scale ) / dataRes.x;
+	float luy = ( dataRes.y - ( lookup.y + lookup.w - p.y / scale ) ) / dataRes.y;
+	color = texture2D( fontTexture, vec2( lux, luy ) );
+	
+	gl_PointSize = 1.0;
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );
 }

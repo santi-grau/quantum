@@ -5,24 +5,22 @@ var Parser = require('./parser');
 var vs = require('../shaders/pointsVs.glsl');
 var fs = require('../shaders/pointsFs.glsl');
 
-var Font = function( parent ){
-	this.parent = parent;
-}
-
 var Main = function() {
 	this.element = document.getElementById('main');
-	this.canvas = document.createElement('canvas');
-	this.debugImage = new Image();
 
-	this.font = 'font_64';
-	this.data = new Parser( require('./../img/font_64/font.fnt') );
+	this.font = 'df';
+	this.data = new Parser( require('./../img/df/font.fnt') );
 	this.xHeight = this.data.chars[ 120 ].height; // get xHeight form x, duh!
+	this.scale = 2	;
 	
 	this.spread = 1;
 	this.pointSize = 0;
 
 	this.modSize = 10;
 	this.time = 0;
+
+	this.maxLetters = 16;
+	this.letterSize = 128; // 32, 64, 128, 256, 512
 
 	if( window.location.href.indexOf('localhost') > 0 ) this.socket = new WebSocket('ws://localhost:8080').addEventListener('message', this.onMessage.bind( this ) );
 
@@ -32,63 +30,75 @@ var Main = function() {
 	this.renderer = new THREE.WebGLRenderer( { alpha : true, antialias : false } );
 	this.element.appendChild( this.renderer.domElement );
 
-	document.addEventListener('keydown', this.onKeydown.bind(this));
+	// dataTexture
+	var data = [];
+	var tSize = this.letterSize * Math.sqrt( this.maxLetters );
+	var numParticles = tSize * tSize;
+	for( var i = 0 ; i < numParticles ; i++ ) data.push( Math.random(), Math.random(), Math.random(), Math.random() );
+	var dataTexture = new THREE.DataTexture( new Float32Array( data ) , tSize, tSize, THREE.RGBAFormat, THREE.FloatType );
+	dataTexture.needsUpdate = true;
+
+	// debug datatexture
+	// var geometry = new THREE.PlaneBufferGeometry( tSize, tSize );
+	// var material = new THREE.MeshBasicMaterial( { map : dataTexture } );
+	// var plane = new THREE.Mesh( geometry, material );
+	// this.scene.add( plane );
 	
-	/// bg
+	// geometry
 	var geometry = new THREE.BufferGeometry();
-
-	var numParticles = 512 * 512;
-
 	var position = [];
-	for( var i = 0 ; i < numParticles ; i++ ) position.push( 0, 0, Math.random() * 100 );
+	var uv = [];
+	var lookup = [];
+	// var dimensions = [];
+	for( var i = 0 ; i < numParticles ; i++ ){
+		position.push( Math.random(), Math.random(), 0 );
+		lookup.push( 0, 0, 0, 0 );
+	}
 	geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( position ), 3 ) );
-
+	geometry.addAttribute( 'lookup', new THREE.BufferAttribute( new Float32Array( lookup ), 4 ) );
 	
+	var fontTexture = new THREE.TextureLoader().load( 'img/' + this.font + '/font.png' );
+
 	var material = new THREE.ShaderMaterial( {
 		uniforms : {
-			res : { value : new THREE.Vector2( this.element.offsetWidth, this.element.offsetWidth ) },
-			modSize : { value : this.modSize },
-			time : { value : 0 },
-			spread : { value : this.spread },
-			pointSize : { value : this.pointSize }
+			data : { value : dataTexture },
+			fontTexture : { value : fontTexture },
+			dataRes : { value : new THREE.Vector2( 0, 0 ) },
+			scale : { value : this.scale },
 		},
 		transparent : true,
 		vertexShader: vs,
 		fragmentShader: fs,
-		depthTest:  true,
-		depthWrite: false,
+		// depthTest:  true,
+		// depthWrite: false,
 		// blending : THREE.NoBlending
 	} );
 
-	var size = 1000;
-	var divisions = size / this.modSize;
-
-	var gridHelper = new THREE.GridHelper( size, divisions );
-	gridHelper.rotation.x = Math.PI / 2;
-	
-	this.scene.add( gridHelper );
-
-
 	this.mesh = new THREE.Points( geometry, material );
-	this.mesh.geometry.setDrawRange( 0, 0 );
-	this.scene.add(this.mesh);	
+	// this.mesh.geometry.setDrawRange( 0, 0 );
+	this.scene.add(this.mesh);
+
+
 	
-	
+	this.debugImage = new Image();
 	this.debugImage.src = 'img/' + this.font + '/font.png';
-	
 	this.debugImage.addEventListener('load', this.onImageReady.bind(this) );
 	
+	document.addEventListener('keydown', this.onKeydown.bind(this));
+
 	this.resize();
 	this.step();
 }
 
 Main.prototype.onImageReady = function( e ){
 	console.log('ready')
+	this.canvas = document.createElement('canvas');
 	this.canvas.width  = e.target.width;
 	this.canvas.height = e.target.height;
-	this.canvas.style.width = e.target.width/2 + 'px'
-	this.canvas.style.height = e.target.height/2 + 'px'
-	// document.body.appendChild(this.canvas);
+	this.canvas.style.width = e.target.width/4 + 'px'
+	this.canvas.style.height = e.target.height/4 + 'px'
+	document.body.appendChild(this.canvas);
+	this.mesh.material.uniforms.dataRes.value = new THREE.Vector2( this.canvas.width, this.canvas.height );
 	this.ctx = this.canvas.getContext('2d');
 
 	this.ctx.drawImage( e.target, 0, 0 );
@@ -100,30 +110,49 @@ Main.prototype.onKeydown = function( e ){
 	
 	// console.log(this.data.info)
 	console.log(charData)
-	var p = 0;
-	var alpha = [];
-	for( var i = 3 ; i < imgData.data.length ; i+=4 ){
-		alpha.push( imgData.data[i] );
-		p += imgData.data[i];
-	}
 
-	var particleCount = 0;
 
-	for( var y = 0 ; y < imgData.height ; y++ ){
-		for( var x = 0 ; x < imgData.width ; x++ ){
-			this.mesh.geometry.attributes.position.setXY( particleCount, x, y );
-			var val = imgData.data[ ( ( y * ( imgData.width * 4 ) ) + ( x * 4 ) ) + 3 ];
-			for( var z = 0 ; z < val ; z++ ){
-				this.mesh.geometry.attributes.position.setXY( particleCount, this.modSize * x + this.modSize / 2, -this.modSize * y - this.modSize / 2 );
-				particleCount++;
-			}
-		}
-	}
+	for( var i = 0 ; i < this.letterSize * this.letterSize ; i++ ) this.mesh.geometry.attributes.lookup.setXYZW( i, charData.x, charData.y, charData.width, charData.height );
+	this.mesh.geometry.attributes.lookup.needsUpdate = true;
 	
-	console.log( particleCount )
-	this.mesh.position.x = -parseInt( charData.width ) * this.modSize * 0.5
-	this.mesh.position.y = ( charData.height - this.xHeight / 2 ) * this.modSize
-	this.mesh.geometry.setDrawRange( 0, particleCount );
+	this.mesh.geometry.setDrawRange( 0, this.letterSize * this.letterSize );
+
+	
+
+	var ps = [];
+	var totalParts = this.letterSize * this.letterSize;
+	var partsPlaced = 0;
+	var safeCount = 0;
+	while(partsPlaced < totalParts ){
+		var px = Math.floor( Math.random() * charData.width );
+		var py = Math.floor( Math.random() * charData.height );
+		var val = imgData.data[ ( ( py * ( imgData.width * 4 ) ) + ( px * 4 ) ) + 3 ];
+		if( val > 0 ) {
+			ps.push( { x : px, y : py } );
+			partsPlaced++;
+		} else {
+			safeCount++;
+		}
+		if( safeCount > 20000 ) break;
+	}
+
+	console.log( ps.length , totalParts );
+
+	// for( var y = 0 ; y < imgData.height ; y++ ){
+	// 	for( var x = 0 ; x < imgData.width ; x++ ){
+	// 		this.mesh.geometry.attributes.position.setXY( particleCount, x, y );
+	// 		var val = imgData.data[ ( ( y * ( imgData.width * 4 ) ) + ( x * 4 ) ) + 3 ];
+	// 		for( var z = 0 ; z < val ; z++ ){
+	// 			this.mesh.geometry.attributes.position.setXY( particleCount, this.modSize * x + this.modSize / 2, -this.modSize * y - this.modSize / 2 );
+	// 			particleCount++;
+	// 		}
+	// 	}
+	// }
+	
+	// console.log( particleCount )
+	// this.mesh.position.x = -parseInt( charData.width ) * this.modSize * 0.5
+	// this.mesh.position.y = ( charData.height - this.xHeight / 2 ) * this.modSize
+	
 
 }
 
@@ -150,12 +179,12 @@ Main.prototype.resize = function( e ) {
 }
 
 Main.prototype.step = function( time ) {
-	this.time += 0.001;
+	// this.time += 0.001;
 	window.requestAnimationFrame( this.step.bind( this ) );
-	this.mesh.geometry.attributes.position.needsUpdate = true;
-	this.mesh.material.uniforms.time.value = this.time;
-	this.mesh.material.uniforms.spread.value = this.spread;
-	this.mesh.material.uniforms.pointSize.value = this.pointSize;
+	// this.mesh.geometry.attributes.position.needsUpdate = true;
+	// this.mesh.material.uniforms.time.value = this.time;
+	// this.mesh.material.uniforms.spread.value = this.spread;
+	// this.mesh.material.uniforms.pointSize.value = this.pointSize;
 	
 	// this.mesh.geometry.attributes.position.setXYZ( 0, 0, this.time, 0 );
 	// this.mesh.geometry.needsUpdate = true;
