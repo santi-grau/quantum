@@ -28,6 +28,13 @@ var Main = function() {
 	this.renderer = new THREE.WebGLRenderer( { alpha : true, antialias : false } );
 	this.element.appendChild( this.renderer.domElement );
 
+
+	var size = 10000;
+	var divisions = 2;
+	var gridHelper = new THREE.GridHelper( size, divisions );
+	gridHelper.rotation.x = Math.PI / 2;
+	this.scene.add( gridHelper );
+
 	// dataTexture
 	// var data = [];
 	// var tSize = this.letterSize * Math.sqrt( this.maxLetters );
@@ -72,22 +79,32 @@ Main.prototype.onImageReady = function( e ){
 	var position = [];
 	var uv = [];
 	var lookup = [];
+	var offset = [];
 	// var dimensions = [];
 	for( var i = 0 ; i < numParticles ; i++ ){
 		position.push(0, 0, 0 );
 		lookup.push( 0, 0, 0, 0 );
+		offset.push( 0, 0, 0, 0 );
 	}
 	geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( position ), 3 ) );
 	geometry.addAttribute( 'lookup', new THREE.BufferAttribute( new Float32Array( lookup ), 4 ) );
+	geometry.addAttribute( 'offset', new THREE.BufferAttribute( new Float32Array( offset ), 4 ) );
 	
+	this.data = new Parser( this, require('./../img/df/font.fnt') );
+	this.xHeight = this.data.chars[ 120 ].height; // get xHeight form x, duh!
+	console.log(this.data, this.xHeight)
 
-	var fontTexture = new THREE.Texture( e.target );
+	var fontTexture = new THREE.Texture( this.debugImage )
+	fontTexture.needsUpdate = true;
+
+	console.log(this.data.info.padding.split(',')[1])
 
 	var material = new THREE.ShaderMaterial( {
 		uniforms : {
 			fontTexture : { value : fontTexture },
+			dimensions : { value : new THREE.Vector4( this.data.asset.base, this.data.info.padding.split(',')[0], this.data.info.padding.split(',')[1], null ) },
 			dataRes : { value : new THREE.Vector2( this.canvas.width, this.canvas.height ) },
-			scale : { value : this.scale },
+			scale : { value : this.scale }
 		},
 		transparent : true,
 		vertexShader: vs,
@@ -101,34 +118,37 @@ Main.prototype.onImageReady = function( e ){
 	// this.mesh.geometry.setDrawRange( 0, 0 );
 	this.scene.add(this.mesh);
 
-	this.data = new Parser( this, require('./../img/df/font.fnt') );
-	this.xHeight = this.data.chars[ 120 ].height; // get xHeight form x, duh!
+	
 
 }
 
 Main.prototype.onKeydown = function( e ){
 	var charData = this.data.chars[ e.key.charCodeAt(0) ];
 	var imgData = this.ctx.getImageData(charData.x, charData.y, charData.width, charData.height);
-	
-	for( var i = 0 ; i < this.letterSize * this.letterSize ; i++ ) this.mesh.geometry.attributes.lookup.setXYZW( i, charData.x, charData.y, charData.width, charData.height );
+	console.log(charData)
+	for( var i = 0 ; i < this.letterSize * this.letterSize ; i++ ){
+		this.mesh.geometry.attributes.lookup.setXYZW( i, charData.x, charData.y, charData.width, charData.height );
+		this.mesh.geometry.attributes.offset.setXYZW( i, charData.xadvance, charData.xoffset, charData.yoffset, 0 );
+	}
 	this.mesh.geometry.attributes.lookup.needsUpdate = true;
+	this.mesh.geometry.attributes.offset.needsUpdate = true;
 	
 	var ps = [];
 	var totalParts = Math.round( this.letterSize * this.letterSize * charData.areaRelative );
 	var partsPlaced = 0;
 	var safeCount = 0;
 	while(partsPlaced < totalParts ){
-		var px = Math.random() * charData.width;
-		var py = Math.random() * charData.height;
-		var val = imgData.data[ ( ( Math.floor(  py ) * ( imgData.width * 4 ) ) + ( Math.floor( px ) * 4 ) ) + 3 ];
+		var px = Math.random();
+		var py = Math.random();
+		var val = imgData.data[ ( ( Math.floor( py * charData.height ) * ( imgData.width * 4 ) ) + ( Math.floor( px * charData.width ) * 4 ) ) + 3 ];
 		if( val > 0 ) {
 			ps.push( { x : px, y : py } );
-			this.mesh.geometry.attributes.position.setXY( partsPlaced, px, -	py );
+			this.mesh.geometry.attributes.position.setXY( partsPlaced, px, py );
 			partsPlaced++;
 		} else {
 			safeCount++;
 		}
-		// if( safeCount > 20000 ) break;
+		if( safeCount > 100000 ) break;
 	}
 
 	this.mesh.geometry.attributes.position.needsUpdate = true;

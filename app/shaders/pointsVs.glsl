@@ -1,8 +1,10 @@
-attribute vec4 lookup;
+attribute vec4 lookup; // x, y, w, h
+attribute vec4 offset; // xadvance, xoffset, yoffset, null
 
 uniform sampler2D fontTexture;
 uniform vec2 dataRes;
 uniform float scale;
+uniform vec4 dimensions; // base, padding-left, padding-bottom, null
 
 varying vec4 color;
 
@@ -50,11 +52,14 @@ void main() {
 	// py += sin(rotation) * 10.0;
 
 	vec3 p = vec3( position.xy * lookup.zw * scale, 0.0 );
+	p.x -= dimensions.y;
+	p.y *= -1.0;
+	p.y -= offset.z - dimensions.x - dimensions.z;
 	
-	float lux = ( lookup.x + p.x / scale ) / dataRes.x;
-	float luy = ( dataRes.y - ( lookup.y + lookup.w - p.y / scale ) ) / dataRes.y;
+	float lux = ( lookup.x + position.x * lookup.z ) / dataRes.x;
+	float luy = ( dataRes.y - ( lookup.y + position.y * lookup.w ) ) / dataRes.y;
 	color = texture2D( fontTexture, vec2( lux, luy ) );
 	
 	gl_PointSize = 1.0;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );
 }
