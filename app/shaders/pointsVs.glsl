@@ -1,6 +1,5 @@
 attribute vec4 lookup;
 
-uniform sampler2D data;
 uniform sampler2D fontTexture;
 uniform vec2 dataRes;
 uniform float scale;
@@ -57,5 +56,5 @@ void main() {
 	color = texture2D( fontTexture, vec2( lux, luy ) );
 	
 	gl_PointSize = 1.0;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }

@@ -5,5 +5,5 @@ void main() {
 	float alpha = 0.0;
 	if( color.a > 0.0 ) alpha = 1.0;
 
-	gl_FragColor = vec4( col, alpha );
+	gl_FragColor = vec4( col, 1.0 );
 }

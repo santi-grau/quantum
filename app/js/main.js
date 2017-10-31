@@ -9,9 +9,7 @@ var Main = function() {
 	this.element = document.getElementById('main');
 
 	this.font = 'df';
-	this.data = new Parser( require('./../img/df/font.fnt') );
-	this.xHeight = this.data.chars[ 120 ].height; // get xHeight form x, duh!
-	this.scale = 2	;
+	this.scale = 1;
 	
 	this.spread = 1;
 	this.pointSize = 0;
@@ -31,12 +29,12 @@ var Main = function() {
 	this.element.appendChild( this.renderer.domElement );
 
 	// dataTexture
-	var data = [];
-	var tSize = this.letterSize * Math.sqrt( this.maxLetters );
-	var numParticles = tSize * tSize;
-	for( var i = 0 ; i < numParticles ; i++ ) data.push( Math.random(), Math.random(), Math.random(), Math.random() );
-	var dataTexture = new THREE.DataTexture( new Float32Array( data ) , tSize, tSize, THREE.RGBAFormat, THREE.FloatType );
-	dataTexture.needsUpdate = true;
+	// var data = [];
+	// var tSize = this.letterSize * Math.sqrt( this.maxLetters );
+	// var numParticles = tSize * tSize;
+	// for( var i = 0 ; i < numParticles ; i++ ) data.push( Math.random(), Math.random(), Math.random(), Math.random() );
+	// var dataTexture = new THREE.DataTexture( new Float32Array( data ) , tSize, tSize, THREE.RGBAFormat, THREE.FloatType );
+	// dataTexture.needsUpdate = true;
 
 	// debug datatexture
 	// var geometry = new THREE.PlaneBufferGeometry( tSize, tSize );
@@ -44,6 +42,31 @@ var Main = function() {
 	// var plane = new THREE.Mesh( geometry, material );
 	// this.scene.add( plane );
 	
+	
+
+	this.debugImage = new Image();
+	this.debugImage.src = 'img/' + this.font + '/font.png';
+	this.debugImage.addEventListener('load', this.onImageReady.bind(this) );
+	
+	document.addEventListener('keydown', this.onKeydown.bind(this));
+
+	this.resize();
+	this.step();
+}
+
+Main.prototype.onImageReady = function( e ){
+
+	this.canvas = document.createElement('canvas');
+	this.canvas.width  = e.target.width;
+	this.canvas.height = e.target.height;
+	this.canvas.style.width = e.target.width/4 + 'px'
+	this.canvas.style.height = e.target.height/4 + 'px'
+	document.body.appendChild(this.canvas);
+	this.ctx = this.canvas.getContext('2d');
+	this.ctx.drawImage( e.target, 0, 0 );
+
+	var tSize = this.letterSize * Math.sqrt( this.maxLetters );
+	var numParticles = tSize * tSize;
 	// geometry
 	var geometry = new THREE.BufferGeometry();
 	var position = [];
@@ -51,19 +74,19 @@ var Main = function() {
 	var lookup = [];
 	// var dimensions = [];
 	for( var i = 0 ; i < numParticles ; i++ ){
-		position.push( Math.random(), Math.random(), 0 );
+		position.push(0, 0, 0 );
 		lookup.push( 0, 0, 0, 0 );
 	}
 	geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( position ), 3 ) );
 	geometry.addAttribute( 'lookup', new THREE.BufferAttribute( new Float32Array( lookup ), 4 ) );
 	
-	var fontTexture = new THREE.TextureLoader().load( 'img/' + this.font + '/font.png' );
+
+	var fontTexture = new THREE.Texture( e.target );
 
 	var material = new THREE.ShaderMaterial( {
 		uniforms : {
-			data : { value : dataTexture },
 			fontTexture : { value : fontTexture },
-			dataRes : { value : new THREE.Vector2( 0, 0 ) },
+			dataRes : { value : new THREE.Vector2( this.canvas.width, this.canvas.height ) },
 			scale : { value : this.scale },
 		},
 		transparent : true,
@@ -78,81 +101,38 @@ var Main = function() {
 	// this.mesh.geometry.setDrawRange( 0, 0 );
 	this.scene.add(this.mesh);
 
+	this.data = new Parser( this, require('./../img/df/font.fnt') );
+	this.xHeight = this.data.chars[ 120 ].height; // get xHeight form x, duh!
 
-	
-	this.debugImage = new Image();
-	this.debugImage.src = 'img/' + this.font + '/font.png';
-	this.debugImage.addEventListener('load', this.onImageReady.bind(this) );
-	
-	document.addEventListener('keydown', this.onKeydown.bind(this));
-
-	this.resize();
-	this.step();
-}
-
-Main.prototype.onImageReady = function( e ){
-	console.log('ready')
-	this.canvas = document.createElement('canvas');
-	this.canvas.width  = e.target.width;
-	this.canvas.height = e.target.height;
-	this.canvas.style.width = e.target.width/4 + 'px'
-	this.canvas.style.height = e.target.height/4 + 'px'
-	document.body.appendChild(this.canvas);
-	this.mesh.material.uniforms.dataRes.value = new THREE.Vector2( this.canvas.width, this.canvas.height );
-	this.ctx = this.canvas.getContext('2d');
-
-	this.ctx.drawImage( e.target, 0, 0 );
 }
 
 Main.prototype.onKeydown = function( e ){
 	var charData = this.data.chars[ e.key.charCodeAt(0) ];
 	var imgData = this.ctx.getImageData(charData.x, charData.y, charData.width, charData.height);
 	
-	// console.log(this.data.info)
-	console.log(charData)
-
-
 	for( var i = 0 ; i < this.letterSize * this.letterSize ; i++ ) this.mesh.geometry.attributes.lookup.setXYZW( i, charData.x, charData.y, charData.width, charData.height );
 	this.mesh.geometry.attributes.lookup.needsUpdate = true;
 	
-	this.mesh.geometry.setDrawRange( 0, this.letterSize * this.letterSize );
-
-	
-
 	var ps = [];
-	var totalParts = this.letterSize * this.letterSize;
+	var totalParts = Math.round( this.letterSize * this.letterSize * charData.areaRelative );
 	var partsPlaced = 0;
 	var safeCount = 0;
 	while(partsPlaced < totalParts ){
-		var px = Math.floor( Math.random() * charData.width );
-		var py = Math.floor( Math.random() * charData.height );
-		var val = imgData.data[ ( ( py * ( imgData.width * 4 ) ) + ( px * 4 ) ) + 3 ];
+		var px = Math.random() * charData.width;
+		var py = Math.random() * charData.height;
+		var val = imgData.data[ ( ( Math.floor(  py ) * ( imgData.width * 4 ) ) + ( Math.floor( px ) * 4 ) ) + 3 ];
 		if( val > 0 ) {
 			ps.push( { x : px, y : py } );
+			this.mesh.geometry.attributes.position.setXY( partsPlaced, px, -	py );
 			partsPlaced++;
 		} else {
 			safeCount++;
 		}
-		if( safeCount > 20000 ) break;
+		// if( safeCount > 20000 ) break;
 	}
 
-	console.log( ps.length , totalParts );
-
-	// for( var y = 0 ; y < imgData.height ; y++ ){
-	// 	for( var x = 0 ; x < imgData.width ; x++ ){
-	// 		this.mesh.geometry.attributes.position.setXY( particleCount, x, y );
-	// 		var val = imgData.data[ ( ( y * ( imgData.width * 4 ) ) + ( x * 4 ) ) + 3 ];
-	// 		for( var z = 0 ; z < val ; z++ ){
-	// 			this.mesh.geometry.attributes.position.setXY( particleCount, this.modSize * x + this.modSize / 2, -this.modSize * y - this.modSize / 2 );
-	// 			particleCount++;
-	// 		}
-	// 	}
-	// }
-	
-	// console.log( particleCount )
-	// this.mesh.position.x = -parseInt( charData.width ) * this.modSize * 0.5
-	// this.mesh.position.y = ( charData.height - this.xHeight / 2 ) * this.modSize
-	
+	this.mesh.geometry.attributes.position.needsUpdate = true;
+	this.mesh.geometry.setDrawRange( 0, totalParts );
 
 }
 
