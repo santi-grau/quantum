@@ -8,8 +8,10 @@ var fs = require('../shaders/pointsFs.glsl');
 var Main = function() {
 	this.element = document.getElementById('main');
 
+	this.input = document.getElementById('input');
+
 	this.font = 'df';
-	this.scale = 1;
+	this.scale = 2;
 	
 	this.spread = 1;
 	this.pointSize = 0;
@@ -17,8 +19,8 @@ var Main = function() {
 	this.modSize = 10;
 	this.time = 0;
 
-	this.maxLetters = 16;
-	this.letterSize = 128; // 32, 64, 128, 256, 512
+	this.maxLetters = this.input.getAttribute('maxlength');
+	this.letterSize = 256; // 32, 64, 128, 256, 512
 
 	if( window.location.href.indexOf('localhost') > 0 ) this.socket = new WebSocket('ws://localhost:8080').addEventListener('message', this.onMessage.bind( this ) );
 
@@ -48,18 +50,21 @@ var Main = function() {
 	// var material = new THREE.MeshBasicMaterial( { map : dataTexture } );
 	// var plane = new THREE.Mesh( geometry, material );
 	// this.scene.add( plane );
-	
-	
 
 	this.debugImage = new Image();
 	this.debugImage.src = 'img/' + this.font + '/font.png';
 	this.debugImage.addEventListener('load', this.onImageReady.bind(this) );
 	
+	// this.input.addEventListener('input', this.inputChange.bind(this) );
 	document.addEventListener('keydown', this.onKeydown.bind(this));
 
 	this.resize();
 	this.step();
 }
+
+Main.prototype.inputChange = function( e ) {
+	console.log( e );
+};
 
 Main.prototype.onImageReady = function( e ){
 
@@ -116,10 +121,7 @@ Main.prototype.onImageReady = function( e ){
 
 	this.mesh = new THREE.Points( geometry, material );
 	// this.mesh.geometry.setDrawRange( 0, 0 );
-	this.scene.add(this.mesh);
-
-	
-
+	this.scene.add(this.mesh);	
 }
 
 Main.prototype.onKeydown = function( e ){
@@ -181,13 +183,6 @@ Main.prototype.resize = function( e ) {
 Main.prototype.step = function( time ) {
 	// this.time += 0.001;
 	window.requestAnimationFrame( this.step.bind( this ) );
-	// this.mesh.geometry.attributes.position.needsUpdate = true;
-	// this.mesh.material.uniforms.time.value = this.time;
-	// this.mesh.material.uniforms.spread.value = this.spread;
-	// this.mesh.material.uniforms.pointSize.value = this.pointSize;
-	
-	// this.mesh.geometry.attributes.position.setXYZ( 0, 0, this.time, 0 );
-	// this.mesh.geometry.needsUpdate = true;
 
 	this.renderer.render( this.scene, this.camera );
 };

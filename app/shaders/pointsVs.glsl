@@ -52,9 +52,9 @@ void main() {
 	// py += sin(rotation) * 10.0;
 
 	vec3 p = vec3( position.xy * lookup.zw * scale, 0.0 );
-	p.x -= dimensions.y;
+	p.x -= dimensions.y * scale;
 	p.y *= -1.0;
-	p.y -= offset.z - dimensions.x - dimensions.z;
+	p.y -= (offset.z - dimensions.x - dimensions.z) * scale;
 	
 	float lux = ( lookup.x + position.x * lookup.z ) / dataRes.x;
 	float luy = ( dataRes.y - ( lookup.y + position.y * lookup.w ) ) / dataRes.y;
