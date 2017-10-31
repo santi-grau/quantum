@@ -1,7 +1,7 @@
 var Xml2json = require('xml2js');
 
 
-var Parse = function( parent, font ){
+var Data = function( parent, font ){
 	this.parent = parent;
 	var xml = font; // http://kvazars.com/littera/
 
@@ -59,4 +59,4 @@ var Parse = function( parent, font ){
 	return data;
 }
 
-module.exports = Parse;
+module.exports = Data;
