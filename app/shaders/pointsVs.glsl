@@ -1,5 +1,5 @@
 attribute vec4 lookup; // x, y, w, h
-attribute float offset; // yoffset
+attribute vec2 offset; // xoffset, yoffset
 
 uniform sampler2D fontTexture;
 uniform vec2 fontTexRes;
@@ -9,9 +9,9 @@ varying vec4 color;
 
 void main() {
 	vec3 p = vec3( position.xy * lookup.zw * dimensions.w, 0.0 );
-	p.x -= dimensions.y * dimensions.w;
+	p.x -= dimensions.y * dimensions.w - offset.x;
 	p.y *= -1.0;
-	p.y -= (offset - dimensions.x - dimensions.z) * dimensions.w;
+	p.y -= ( offset.y - dimensions.x - dimensions.z ) * dimensions.w;
 	
 	float lux = ( lookup.x + position.x * lookup.z ) / fontTexRes.x;
 	float luy = ( fontTexRes.y - ( lookup.y + position.y * lookup.w ) ) / fontTexRes.y;

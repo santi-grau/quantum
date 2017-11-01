@@ -30,7 +30,7 @@ var port = Number( process.env.PORT || 5000 );
 // | App setup
 // └────────────────────────────────────────────────────────────────────┘
 
-browserify.settings( { transform: [ stringify( ['.svg', '.glsl', '.vs', '.fs', '.fnt', '.json' ] ) ] } );
+browserify.settings( { transform: [ stringify( [ '.glsl', '.fnt', '.json' ] ) ] } );
 
 app.set('views', __dirname + '/app/views');
 app.use('/js', browserify('./app/js'));

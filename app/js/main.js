@@ -9,7 +9,8 @@ var Main = function() {
 
 	// properties
 	this.maxLetters = this.input.getAttribute('maxlength');
-
+	this.stringLength = 0;
+	
 	// Three scene
 	this.scene = new THREE.Scene();
 	this.camera = new THREE.OrthographicCamera();
