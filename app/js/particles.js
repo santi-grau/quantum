@@ -7,8 +7,17 @@ var Particles = function( parent, settings ){
 	this.parent = parent;
 	this.settings = settings || {};
 
-	this.scale = this.settings.scale || 1;
-	this.letterRes = this.settings.letterRes || 128; // 32, 64, 128, 256, 512
+	this.time = 0;
+	
+	this.settings.timeInc = this.settings.timeInc || 0;
+	this.settings.scale = this.settings.scale || 2;
+	this.settings.weight = this.settings.weight || 0.5;
+	this.settings.letterRes = this.settings.letterRes || 128; // 32, 64, 128, 256, 512
+	this.settings.pointSize = this.settings.pointSize || 1;
+	this.settings.pointSizeDif = this.settings.pointSizeDif || 2;
+	this.settings.dispersion = this.settings.dispersion || 0.1;
+	this.settings.oscillation = this.settings.oscillation || 0.0;
+	this.settings.color = this.settings.color || new THREE.Vector3( 0, 0, 0 );
 
 	var image = this.parent.debugImage;
 	var canvas = document.createElement('canvas');
@@ -18,15 +27,19 @@ var Particles = function( parent, settings ){
 	this.ctx.drawImage( image, 0, 0 );
 
 	this.data = new Data( this, require('./../img/df/font.fnt') );
+	
+	this.letterOffset = 0;
+	this.letters = [];
 
-	var tSize = this.letterRes * Math.sqrt( this.parent.maxLetters );
+	var tSize = this.settings.letterRes * Math.sqrt( this.parent.maxLetters );
 	this.letterParticles = tSize * tSize;
 	var geometry = new THREE.BufferGeometry();
 	var position = [];
 	var lookup = [];
 	var offset = [];
+	
 	for( var i = 0 ; i < this.letterParticles ; i++ ){
-		position.push(0, 0, 0 );
+		position.push( 0, 0, 0 );
 		lookup.push( 0, 0, 0, 0 );
 		offset.push( 0, 0 );
 	}
@@ -55,15 +68,26 @@ var Particles = function( parent, settings ){
 Particles.prototype.addLetter = function( char ) {
 	var charData = this.data.chars[ char ];
 	var imgData = this.ctx.getImageData(charData.x, charData.y, charData.width, charData.height);
-	console.log(charData)
 
+	var kerning = 0;
+	if( this.letters.length ){
+		var prevLetter = this.letters[this.letters.length-1];
+		if( this.data.kerning[prevLetter.id] ) kerning = this.data.kerning[prevLetter.id][charData.id] || 0;
+	}
 
-	var particles = this.letterRes * this.letterRes;
-	var particleOffset = this.letterRes * this.letterRes * ( this.parent.stringLength );
+	this.letterOffset += parseInt(kerning);
+	this.letterOffset += parseInt( charData.xoffset )
+
+	this.letters.push( charData );
+
+	var totalLetters = this.parent.input.value.length;
+
+	var particles = this.settings.letterRes * this.settings.letterRes;
+	var particleOffset = this.settings.letterRes * this.settings.letterRes * ( this.parent.stringLength );
 
 	for( var i = 0 ; i < particles ; i++ ){
 		this.mesh.geometry.attributes.lookup.setXYZW( particleOffset + i, charData.x, charData.y, charData.width, charData.height );
-		this.mesh.geometry.attributes.offset.setXY( particleOffset + i, 100 * this.parent.stringLength, charData.yoffset );
+		this.mesh.geometry.attributes.offset.setXY( particleOffset + i, this.letterOffset, charData.yoffset );
 	}
 	this.mesh.geometry.attributes.lookup.needsUpdate = true;
 	this.mesh.geometry.attributes.offset.needsUpdate = true;
@@ -83,17 +107,26 @@ Particles.prototype.addLetter = function( char ) {
 		}
 		if( safeCount > 100000 ) break;
 	}
-	for( var i = partsPlaced ; i < this.letterRes * this.letterRes ; i++ ){
+	for( var i = partsPlaced ; i < this.settings.letterRes * this.settings.letterRes ; i++ ){
 		this.mesh.geometry.attributes.position.setXY( particleOffset + i, 0, 0 );
 	}
 
-	console.log( this.parent.stringLength )
 	this.mesh.geometry.attributes.position.needsUpdate = true;
-	this.mesh.geometry.setDrawRange( 0, this.letterRes * this.letterRes * (this.parent.stringLength + 1) );
+	this.mesh.geometry.setDrawRange( 0, this.settings.letterRes * this.settings.letterRes * totalLetters );
+
+	this.letterOffset += parseInt( charData.width );
+
+	this.mesh.position.x = -this.letterOffset / 2;
+
 };
 
-Particles.prototype.removeLetter = function( ) {
-	this.mesh.geometry.setDrawRange( 0, 0 );
+Particles.prototype.removeLetter = function( char ) {
+	var totalLetters = this.parent.input.value.length;
+	var charData = this.letters.pop( );
+	this.letterOffset -= parseInt( charData.xadvance );
+	
+	this.mesh.geometry.setDrawRange( 0, this.settings.letterRes * this.settings.letterRes * totalLetters );
+	this.mesh.position.x = -this.letterOffset / 2;
 }
 
 module.exports = Particles;

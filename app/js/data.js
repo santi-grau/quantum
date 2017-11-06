@@ -1,9 +1,8 @@
 var Xml2json = require('xml2js');
 
-
 var Data = function( parent, font ){
 	this.parent = parent;
-	var xml = font; // http://kvazars.com/littera/
+	var xml = font; // taken from http://kvazars.com/littera/
 
 	var data = { asset : {}, info : {}, chars : [], kerning : [] };
 
@@ -28,8 +27,7 @@ var Data = function( parent, font ){
 		}
 	});
 
-	var minArea = 1000000000;
-	var maxArea = -1000000000;
+	var minArea = 1000000000, maxArea = -1000000000;
 
 	for( var i = 0 ; i < data.chars.length ; i++ ){
 		var char = data.chars[ i ];

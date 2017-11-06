@@ -37,7 +37,7 @@ Main.prototype.onImageReady = function( e ){
 
 Main.prototype.inputChange = function( e ){
 	if( e.currentTarget.value.length > this.stringLength ) this.particles.addLetter(  e.data.charCodeAt(0) );
-	else this.particles.removeLetter();
+	else this.particles.removeLetter( );
 	this.stringLength = this.input.value.length;
 }
 
