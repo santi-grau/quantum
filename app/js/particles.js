@@ -8,15 +8,15 @@ var Particles = function( parent, settings ){
 	this.settings = settings || {};
 
 	this.time = 0;
-	
-	this.settings.timeInc = this.settings.timeInc || 0;
+
+	this.settings.timeInc = this.settings.timeInc || 0.01;
 	this.settings.scale = this.settings.scale || 2;
 	this.settings.weight = this.settings.weight || 0.5;
 	this.settings.letterRes = this.settings.letterRes || 128; // 32, 64, 128, 256, 512
 	this.settings.pointSize = this.settings.pointSize || 1;
 	this.settings.pointSizeDif = this.settings.pointSizeDif || 2;
 	this.settings.dispersion = this.settings.dispersion || 0.1;
-	this.settings.oscillation = this.settings.oscillation || 0.0;
+	this.settings.oscillation = this.settings.oscillation || 0.01;
 	this.settings.color = this.settings.color || new THREE.Vector3( 0, 0, 0 );
 
 	var image = this.parent.debugImage;
@@ -54,7 +54,9 @@ var Particles = function( parent, settings ){
 		uniforms : {
 			fontTexture : { value : fontTexture },
 			fontTexRes : { value : new THREE.Vector2( canvas.width, canvas.height ) },
-			dimensions : { value : new THREE.Vector4( this.data.asset.base, this.data.info.padding.split(',')[0], this.data.info.padding.split(',')[1], this.parent.scale ) }
+			dimensions : { value : new THREE.Vector4( this.data.asset.base, this.data.info.padding.split(',')[0], this.data.info.padding.split(',')[1], this.parent.scale ) },
+			oscillation : { value : this.settings.oscillation },
+			time : { value : this.time }
 		},
 		transparent : true,
 		vertexShader: vs,
@@ -128,5 +130,11 @@ Particles.prototype.removeLetter = function( char ) {
 	this.mesh.geometry.setDrawRange( 0, this.settings.letterRes * this.settings.letterRes * totalLetters );
 	this.mesh.position.x = -this.letterOffset / 2;
 }
+
+Particles.prototype.step = function( time ) {
+	this.time += this.settings.timeInc;
+	this.mesh.material.uniforms.time.value = this.time;
+	this.mesh.material.uniforms.oscillation.value = this.settings.oscillation;
+};
 
 module.exports = Particles;

@@ -25,9 +25,18 @@ var Main = function() {
 	// listen for keyboard input
 	this.input.addEventListener('input', this.inputChange.bind(this) );
 
+
+	this.slider = document.getElementById('slider');
+	this.slider.addEventListener('input', this.onSLiderInput.bind(this) );
+
 	// initialize
 	this.resize();
 	this.step();
+}
+
+Main.prototype.onSLiderInput = function(e){
+	console.log(e.target.value);
+	this.particles.settings.oscillation = e.target.value;
 }
 
 Main.prototype.onImageReady = function( e ){
@@ -53,6 +62,7 @@ Main.prototype.resize = function( e ) {
 
 Main.prototype.step = function( time ) {
 	window.requestAnimationFrame( this.step.bind( this ) );
+	if( this.particles ) this.particles.step( time );
 	this.renderer.render( this.scene, this.camera );
 };
 
