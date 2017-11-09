@@ -1,9 +1,20 @@
-varying vec4 color;
+uniform vec3 color;
+uniform sampler2D pointTexture;
+
+varying vec4 vColor;
+varying float vPointSize;
 
 void main() {
-	vec3 col = vec3( 0.0 );
+	vec3 col = vec3( 1.0 );
 	float alpha = 0.0;
-	if( color.a > 0.5 ) alpha = 1.0;
+	if( vColor.a > 0.5 ) alpha = 1.0;
 
-	gl_FragColor = vec4( col, alpha );
+	float dots = 15.0;
+
+	float width = (gl_PointCoord.x / dots);
+	float height = (gl_PointCoord.y );
+	float x = floor( vPointSize - 1.0 ) / dots;
+	float y = 0.0;
+
+	gl_FragColor = vec4( color, alpha ) * texture2D( pointTexture, vec2( x + width, y + height ) );
 }

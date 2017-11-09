@@ -6,6 +6,13 @@ var Data = function( parent, font ){
 
 	var data = { asset : {}, info : {}, chars : [], kerning : [] };
 
+	var image = this.parent.parent.dataTexture;
+	var canvas = document.createElement('canvas');
+	canvas.width = image.width;
+	canvas.height = image.height;
+	this.ctx = canvas.getContext('2d');
+	this.ctx.drawImage( image, 0, 0 );
+
 	Xml2json.parseString(xml, function (err, result) {
 	    data.asset = result.font.common[ 0 ].$;
 	    data.info = result.font.info[ 0 ].$;
@@ -32,12 +39,14 @@ var Data = function( parent, font ){
 	for( var i = 0 ; i < data.chars.length ; i++ ){
 		var char = data.chars[ i ];
 		if( !char || !parseInt(char.width) || !parseInt(char.height) ) continue;
-		var imgData = this.parent.ctx.getImageData( char.x, char.y, char.width, char.height );
+		
+		char.imgData = this.ctx.getImageData( char.x, char.y, char.width, char.height );
+
 		var particleCount = 0;
 
-		for( var y = 0 ; y < imgData.height ; y++ ){
-			for( var x = 0 ; x < imgData.width ; x++ ){
-				var val = imgData.data[ ( ( y * ( imgData.width * 4 ) ) + ( x * 4 ) ) + 3 ];
+		for( var y = 0 ; y < char.imgData.height ; y++ ){
+			for( var x = 0 ; x < char.imgData.width ; x++ ){
+				var val = char.imgData.data[ ( ( y * ( char.imgData.width * 4 ) ) + ( x * 4 ) ) + 3 ];
 				if( val > 0 ) particleCount++;
 			}
 		}

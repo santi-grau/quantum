@@ -1,13 +1,19 @@
 attribute vec4 lookup; // x, y, w, h
-attribute vec2 offset; // xoffset, yoffset
+attribute vec4 transform; // xoffset, yoffset, rotation, null
+attribute vec4 seeds; // rotation, null, null, null
 
 uniform sampler2D fontTexture;
 uniform vec2 fontTexRes;
 uniform vec4 dimensions; // base, padding-left, padding-bottom, scale
-uniform float oscillation;
+
+uniform vec4 oscillation; // minV, maxV, minR, maxR
+uniform vec4 pointSize; // minV, maxV, minR, maxR
+uniform vec4 dispersion; // minV, maxV, minR, maxR
+
 uniform float time;
 
-varying vec4 color;
+varying vec4 vColor;
+varying float vPointSize;
 
 
 #define M_PI 3.1415926535897932384626433832795
@@ -43,25 +49,45 @@ float snoise(vec2 v){
 	return 130.0 * dot(m, g);
 }
 
+float map( vec4 v, float m ){
+	float minV = v.x;
+	float maxV = v.y;
+	float minR = v.z;
+	float maxR = v.w;
+	float range = maxR - minR;
 
+	return minR + ( minV * range ) + ( ( maxV * range ) - ( minV * range ) ) * m;
+}
 
 void main() {
+	// p -> positions
 	vec3 p = vec3( position.xy * lookup.zw * dimensions.w, 0.0 );
-	p.x -= dimensions.y * dimensions.w - offset.x;
+	p.x -= dimensions.y * dimensions.w - transform.x;
 	p.y *= -1.0;
-	p.y -= ( offset.y - dimensions.x - dimensions.z ) * dimensions.w;
+	p.y -= ( transform.y - dimensions.x - dimensions.z ) * dimensions.w;
 	
+	// vColor
 	float lux = ( lookup.x + position.x * lookup.z ) / fontTexRes.x;
 	float luy = ( fontTexRes.y - ( lookup.y + position.y * lookup.w ) ) / fontTexRes.y;
-	color = texture2D( fontTexture, vec2( lux, luy ) );
+	vColor = texture2D( fontTexture, vec2( lux, luy ) );
 
-	float v1 = snoise( vec2( p.y, time ) ) * oscillation * 50.0;
-	float v2 = snoise( vec2( p.x, time ) ) * oscillation * 50.0;
+	// dispersion
+	float dNoise = snoise( vec2( seeds.x, seeds.y ) ) ;
+	float dVal = map( dispersion, dNoise );
+	float dx = cos( M_PI * 2.0 * transform.z ) * dVal;
+	float dy = sin( M_PI * 2.0 * transform.z ) * dVal;
+	p.xy += vec2( dx, dy );
 
-	float v3 = ( snoise( vec2( position.x / 50.0, position.y / 50.0 ) ) + 1.0 ) / 2.0;
+	// oscillation
+	float oNoise = snoise( vec2( seeds.z, seeds.w ) ) ;
+	float ox = map( oscillation, oNoise ) * snoise( vec2( position.x * 100.0, time ) );
+	float oy = map( oscillation, oNoise ) * snoise( vec2( position.y * 100.0, time ) );
+	p.xy += vec2( ox, oy );
 
-	p.xy += vec2( v1, v2 );
+	// pointSize
+	float pNoise = ( snoise( vec2( position.x / 0.01, position.y / 0.01 ) ) + 1.0 ) / 2.0;
+	vPointSize = map( pointSize, pNoise );
 
-	gl_PointSize = v3 * 3.0;
+	gl_PointSize = 30.0;
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );
 }

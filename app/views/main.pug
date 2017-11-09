@@ -9,6 +9,11 @@ html
     link(rel='stylesheet', id='mainStylesheet' href='css/main.css')
   body
     #main
-        input#input( autofocus = 'true', maxlength = '16' )
-        input#slider( type='range',min='0.01',max='1',value='0.01',width='300',step='0.001')
-    script(src='js/main.js')
+        input#input( autofocus = 'true', maxlength = '16', value = 'hello' )
+        #bottomControls
+            div.controller( data-type = 'range', data-label = 'Particle size', data-slug = 'pointSize', data-min = '1', data-max = '8', data-valuemin = '1', data-valuemax = '3' )
+            div.controller( data-type = 'range', data-label = 'Oscillation', data-slug = 'oscillation', data-min = '0', data-max = '40', data-valuemin = '2', data-valuemax = '6' )
+            div.controller( data-type = 'range', data-label = 'Dispersion', data-slug = 'dispersion', data-min = '0', data-max = '200', data-valuemin = '0', data-valuemax = '18' )
+            div.controller( data-type = 'color', data-label = 'Color', data-slug = 'color', data-r = '0', data-g = '1', data-b = '0' )
+            div.controller( data-type = 'color', data-label = 'Background', data-slug = 'background', data-valuer = '1', data-valueg = '1', data-valueb = '1' )
+    script(src='js/main.js')    

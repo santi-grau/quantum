@@ -1,6 +1,10 @@
 window.THREE = require('three');
+var ee = require('event-emitter');
+window.eventEmitter = new ee();
 
 var Particles = require('./particles');
+var RangeController = require('./rangeController');
+var ColorController = require('./colorController');
 
 var Main = function() {
 	// elements
@@ -18,30 +22,32 @@ var Main = function() {
 	this.element.appendChild( this.renderer.domElement );
 
 	// Load data image
-	this.debugImage = new Image();
-	this.debugImage.src = 'img/df/font.png';
-	this.debugImage.addEventListener('load', this.onImageReady.bind(this) );
+	this.dataTexture = new Image();
+	this.dataTexture.src = 'img/serif/font.png';
+	this.dataTexture.addEventListener('load', this.onImageReady.bind(this) );
 	
 	// listen for keyboard input
 	this.input.addEventListener('input', this.inputChange.bind(this) );
-
-
-	this.slider = document.getElementById('slider');
-	this.slider.addEventListener('input', this.onSLiderInput.bind(this) );
 
 	// initialize
 	this.resize();
 	this.step();
 }
 
-Main.prototype.onSLiderInput = function(e){
-	console.log(e.target.value);
-	this.particles.settings.oscillation = e.target.value;
-}
-
 Main.prototype.onImageReady = function( e ){
 	this.particles = new Particles( this );
 	this.scene.add(this.particles.mesh);
+
+	var value = this.input.value.split('');
+	for( var i = 0 ; i < value.length ; i++ ){
+		this.particles.addLetter(  value[i].charCodeAt(0) )
+		this.stringLength++;
+	}
+
+	var controllers = document.getElementsByClassName( 'controller' );
+	for( var i = 0 ; i < controllers.length; i++ ) 
+		if( controllers[i].dataset.type == 'range' ) new RangeController( this, controllers[i] );
+		else if( controllers[i].dataset.type == 'color' ) new ColorController( this, controllers[i] );
 }
 
 Main.prototype.inputChange = function( e ){
@@ -66,4 +72,4 @@ Main.prototype.step = function( time ) {
 	this.renderer.render( this.scene, this.camera );
 };
 
-var root = new Main();
+new Main();
