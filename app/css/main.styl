@@ -25,13 +25,13 @@ body
 			position fixed
 			bottom 80px
 			left 50%
-			width 350px
-			margin-left -175px
+			width 360px
+			margin-left -180px
 			.controller
 				pointer-events none
 				height 9px
 				position relative
-				margin-bottom 4px
+				margin-bottom 6px
 				.hBar
 					display inline-block
 					position absolute
@@ -43,9 +43,14 @@ body
 					pointer-events none
 				&.color
 					.selector
-						width 276px
-						background linear-gradient( to right, hsl( 0, 100, 50 ) 0%, hsl( 60, 100, 50 ) 15%, hsl( 120, 100, 50 ) 30%, hsl( 180, 100, 50 ) 45%, hsl( 240, 100, 50 ) 60%, hsl( 300, 100, 50 ) 75%, hsl( 360, 100, 50 ) 90%, hsl( 0, 100, 0 ) 90%, hsl( 0, 100, 100 ) 100% )
+						width 274px
+						height calc( 100% - 2px )
+						background #ffffff
 						margin-right 14px
+						border solid 1px #666666
+					&.active
+						.selector
+							background linear-gradient( to right, hsl( 0, 100, 50 ) 0%, hsl( 60, 100, 50 ) 15%, hsl( 120, 100, 50 ) 30%, hsl( 180, 100, 50 ) 45%, hsl( 240, 100, 50 ) 60%, hsl( 300, 100, 50 ) 75%, hsl( 360, 100, 50 ) 90%, hsl( 0, 100, 0 ) 90%, hsl( 0, 100, 100 ) 100% ) !important
 				.selector
 					pointer-events auto
 					display inline-block

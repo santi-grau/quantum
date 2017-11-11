@@ -1,6 +1,7 @@
 window.THREE = require('three');
 var ee = require('event-emitter');
 window.eventEmitter = new ee();
+window.chroma = require('chroma-js');
 
 var Particles = require('./particles');
 var RangeController = require('./rangeController');
@@ -12,6 +13,7 @@ var Main = function() {
 	this.input = document.getElementById('input');
 
 	// properties
+	this.controllers = [];
 	this.maxLetters = this.input.getAttribute('maxlength');
 	this.stringLength = 0;
 	
@@ -29,10 +31,20 @@ var Main = function() {
 	// listen for keyboard input
 	this.input.addEventListener('input', this.inputChange.bind(this) );
 
+	eventEmitter.on('updateVals', this.updateVals.bind(this) );
+
 	// initialize
 	this.resize();
 	this.step();
 }
+
+Main.prototype.updateVals = function( key, val ) {
+	if(key == 'backgroundColor'){
+		var color = chroma( val.x, val.y, val.z, 'gl' );
+		document.body.style.backgroundColor = color.hex();
+		for( var i = 0 ; i < this.controllers.length ; i++ ) this.controllers[i].updateColors( color );
+	}
+};
 
 Main.prototype.onImageReady = function( e ){
 	this.particles = new Particles( this );
@@ -45,9 +57,10 @@ Main.prototype.onImageReady = function( e ){
 	}
 
 	var controllers = document.getElementsByClassName( 'controller' );
-	for( var i = 0 ; i < controllers.length; i++ ) 
-		if( controllers[i].dataset.type == 'range' ) new RangeController( this, controllers[i] );
-		else if( controllers[i].dataset.type == 'color' ) new ColorController( this, controllers[i] );
+	for( var i = 0 ; i < controllers.length; i++ ) {
+		if( controllers[i].dataset.type == 'range' ) this.controllers.push( new RangeController( this, controllers[i] ) );
+		else if( controllers[i].dataset.type == 'color' ) this.controllers.push( new ColorController( this, controllers[i] ) );
+	}
 }
 
 Main.prototype.inputChange = function( e ){

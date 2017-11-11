@@ -1,14 +1,17 @@
 # Quantum font
 
-- [ ] Set defaults in particles.js
+- [x] Set defaults in particles.js
+- [x] Color selector
 - [ ] Speed animation
+- [ ] Polish values
 - [ ] Toggle qualities
 - [ ] Colorize letters
 - [ ] Feedback shader
 - [ ] Font weight
 - [ ] Font-size
 - [ ] Optimize mesh
-- [ ] Export
+- [ ] Export print
 - [ ] Cleanup
 - [ ] Random texture
+- [ ] Animate sliders
 - [ ] Screens and devices
