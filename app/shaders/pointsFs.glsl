@@ -8,7 +8,7 @@ varying float vPointSize;
 void main() {
 	vec3 col = vec3( 1.0 );
 	float alpha = 0.0;
-	if( vColor.a > 0.3 + settings.z * 0.4 ) alpha = 1.0;
+	if( vColor.a > 0.3 + ( 1.0 - settings.z ) * 0.4 ) alpha = 1.0;
 
 	float dots = 15.0;
 
