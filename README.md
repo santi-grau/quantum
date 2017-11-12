@@ -2,15 +2,21 @@
 
 - [x] Set defaults in particles.js
 - [x] Color selector
-- [ ] Speed animation
-- [ ] Polish values
-- [ ] Toggle qualities
-- [ ] Colorize letters
-- [ ] Feedback shader
-- [ ] Font weight
+
+- [x] Speed animation
+- [x] Font weight
 - [ ] Font-size
-- [ ] Optimize mesh
+- [ ] Toggle qualities
+- [ ] Toggle feedback
 - [ ] Export print
+- [ ] Colorize toggle
+
+- [ ] Keep focus on input
+
+- [ ] Polish values
+
+- [ ] Feedback shader
+- [ ] Optimize mesh
 - [ ] Cleanup
 - [ ] Random texture
 - [ ] Animate sliders

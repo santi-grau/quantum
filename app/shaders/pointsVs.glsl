@@ -9,8 +9,7 @@ uniform vec4 dimensions; // base, padding-left, padding-bottom, scale
 uniform vec4 oscillation; // minV, maxV, minR, maxR
 uniform vec4 pointSize; // minV, maxV, minR, maxR
 uniform vec4 dispersion; // minV, maxV, minR, maxR
-
-uniform float time;
+uniform vec4 settings; // time, scale, weight, null
 
 varying vec4 vColor;
 varying float vPointSize;
@@ -60,6 +59,9 @@ float map( vec4 v, float m ){
 }
 
 void main() {
+	// time
+	float time = settings.x;
+
 	// p -> positions
 	vec3 p = vec3( position.xy * lookup.zw * dimensions.w, 0.0 );
 	p.x -= dimensions.y * dimensions.w - transform.x;

@@ -1,5 +1,6 @@
 uniform vec3 color;
 uniform sampler2D pointTexture;
+uniform vec4 settings; // time, scale, weight, null
 
 varying vec4 vColor;
 varying float vPointSize;
@@ -7,7 +8,7 @@ varying float vPointSize;
 void main() {
 	vec3 col = vec3( 1.0 );
 	float alpha = 0.0;
-	if( vColor.a > 0.5 ) alpha = 1.0;
+	if( vColor.a > 0.3 + settings.z * 0.4 ) alpha = 1.0;
 
 	float dots = 15.0;
 

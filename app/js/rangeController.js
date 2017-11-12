@@ -7,7 +7,9 @@ var RangeController = function( parent, element ){
 	for(var index in this.element.dataset) this[index] = this.element.dataset[index]; 
 
 	var valuemin = this.parent.particles.settings[this.slug].x
-	var valuemax = this.parent.particles.settings[this.slug].y
+	var valuemax = this.parent.particles.settings[this.slug].y;
+	this.min = this.parent.particles.settings[this.slug].z;
+	this.max = this.parent.particles.settings[this.slug].w;
 
 	this.selector = document.createElement( 'span' );
 	this.selector.classList.add( 'selector' );
@@ -25,6 +27,7 @@ var RangeController = function( parent, element ){
 		this.bars[i] = document.createElement( 'span' );
 		this.selector.append(this.bars[i]);
 	}
+
 
 	var range = this.max - this.min;
 	

@@ -20,7 +20,7 @@ var ParticleMaterial = function( parent ){
 			pointSize : { value : this.parent.settings.pointSize },
 			dispersion : { value : this.parent.settings.dispersion },
 			color : { value : this.parent.settings.color },
-			time : { value : this.parent.time }
+			settings : { value : new THREE.Vector4( this.parent.time, this.parent.settings.scale.x, this.parent.settings.weight.x, 0 ) }
 		},
 		transparent : true,
 		vertexShader: vs,
@@ -33,7 +33,7 @@ var ParticleMaterial = function( parent ){
 }
 
 ParticleMaterial.prototype.step = function( time ){
-	this.material.uniforms.time.value = this.parent.time;
+	this.material.uniforms.settings.value = new THREE.Vector4( this.parent.time, this.parent.settings.scale.x, this.parent.settings.weight.x, 0 );
 	this.material.uniforms.pointSize.value = this.parent.settings.pointSize;
 	this.material.uniforms.oscillation.value = this.parent.settings.oscillation;
 	this.material.uniforms.dispersion.value = this.parent.settings.dispersion;

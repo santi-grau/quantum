@@ -6,6 +6,7 @@ window.chroma = require('chroma-js');
 var Particles = require('./particles');
 var RangeController = require('./rangeController');
 var ColorController = require('./colorController');
+var SliderController = require('./sliderController');
 
 var Main = function() {
 	// elements
@@ -60,7 +61,11 @@ Main.prototype.onImageReady = function( e ){
 	for( var i = 0 ; i < controllers.length; i++ ) {
 		if( controllers[i].dataset.type == 'range' ) this.controllers.push( new RangeController( this, controllers[i] ) );
 		else if( controllers[i].dataset.type == 'color' ) this.controllers.push( new ColorController( this, controllers[i] ) );
+		else if( controllers[i].dataset.type == 'slider' ) this.controllers.push( new SliderController( this, controllers[i] ) );
 	}
+
+	var color = this.particles.settings.backgroundColor;
+	for( var i = 0 ; i < this.controllers.length ; i++ ) this.controllers[i].updateColors( chroma( color.x, color.y, color.z, 'gl' ) );
 }
 
 Main.prototype.inputChange = function( e ){

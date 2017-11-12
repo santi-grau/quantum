@@ -27,41 +27,47 @@ body
 			left 50%
 			width 360px
 			margin-left -180px
-			.controller
+		#topControls
+			position fixed
+			top 80px
+			left 50%
+			width 360px
+			margin-left -180px
+		.controller
+			pointer-events none
+			height 9px
+			position relative
+			margin-bottom 6px
+			.hBar
+				display inline-block
+				position absolute
+				top 0
+				left 0
+				width 0
+				height 5px
+				border-bottom 1px solid #ffffff
 				pointer-events none
-				height 9px
-				position relative
-				margin-bottom 6px
-				.hBar
-					display inline-block
-					position absolute
-					top 0
-					left 0
-					width 0
-					height 5px
-					border-bottom 1px solid #ffffff
-					pointer-events none
-				&.color
-					.selector
-						width 274px
-						height calc( 100% - 2px )
-						background #ffffff
-						margin-right 14px
-						border solid 1px #666666
-					&.active
-						.selector
-							background linear-gradient( to right, hsl( 0, 100, 50 ) 0%, hsl( 60, 100, 50 ) 15%, hsl( 120, 100, 50 ) 30%, hsl( 180, 100, 50 ) 45%, hsl( 240, 100, 50 ) 60%, hsl( 300, 100, 50 ) 75%, hsl( 360, 100, 50 ) 90%, hsl( 0, 100, 0 ) 90%, hsl( 0, 100, 100 ) 100% ) !important
+			&.color
 				.selector
-					pointer-events auto
+					width 274px
+					height calc( 100% - 2px )
+					background #ffffff
+					margin-right 14px
+					border solid 1px #666666
+				&.active
+					.selector
+						background linear-gradient( to right, hsl( 0, 100, 50 ) 0%, hsl( 60, 100, 50 ) 15%, hsl( 120, 100, 50 ) 30%, hsl( 180, 100, 50 ) 45%, hsl( 240, 100, 50 ) 60%, hsl( 300, 100, 50 ) 75%, hsl( 360, 100, 50 ) 90%, hsl( 0, 100, 0 ) 90%, hsl( 0, 100, 100 ) 100% ) !important
+			.selector
+				pointer-events auto
+				display inline-block
+				width 280px
+				height 100%
+				margin-right 10px
+				& > *
 					display inline-block
-					width 280px
+					width 4px
 					height 100%
-					margin-right 10px
-					& > *
-						display inline-block
-						width 4px
-						height 100%
-						border-left 1px solid
-						border-color #444444
-						&.active
-							border-color #ffffff
+					border-left 1px solid
+					border-color #444444
+					&.active
+						border-color #ffffff

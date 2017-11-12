@@ -10,10 +10,14 @@ html
   body
     #main
         input#input( autofocus = 'true', maxlength = '16', value = 'hello' )
+        #topControls
+            div.controller( data-type = 'slider', data-label = 'Font Size', data-slug = 'scale' )
+            div.controller( data-type = 'slider', data-label = 'Font Weight', data-slug = 'weight' )
+            div.controller( data-type = 'slider', data-label = 'Particle speed', data-slug = 'speed' )
         #bottomControls
-            div.controller( data-type = 'range', data-label = 'Particle size', data-slug = 'pointSize', data-min = '1', data-max = '8' )
-            div.controller( data-type = 'range', data-label = 'Oscillation', data-slug = 'oscillation', data-min = '0', data-max = '40' )
-            div.controller( data-type = 'range', data-label = 'Dispersion', data-slug = 'dispersion', data-min = '0', data-max = '200' )
+            div.controller( data-type = 'range', data-label = 'Particle size', data-slug = 'pointSize' )
+            div.controller( data-type = 'range', data-label = 'Oscillation', data-slug = 'oscillation' )
+            div.controller( data-type = 'range', data-label = 'Dispersion', data-slug = 'dispersion' )
             div.controller( data-type = 'color', data-label = 'Color', data-slug = 'color' )
             div.controller( data-type = 'color', data-label = 'Background', data-slug = 'backgroundColor' )
     script(src='js/main.js')    
