@@ -26,7 +26,7 @@ var Main = function() {
 
 	// Load data image
 	this.dataTexture = new Image();
-	this.dataTexture.src = 'img/serif/font.png';
+	this.dataTexture.src = 'img/df/font.png';
 	this.dataTexture.addEventListener('load', this.onImageReady.bind(this) );
 	
 	// listen for keyboard input
@@ -48,8 +48,15 @@ Main.prototype.updateVals = function( key, val ) {
 };
 
 Main.prototype.onImageReady = function( e ){
-	this.particles = new Particles( this );
-	this.scene.add(this.particles.mesh);
+	var settings = {};
+	var params = window.location.hash.substr( 1 ).split('&');
+	for( var i = 0 ; i < params.length ; i++ ){
+		var keyval = params[i].split('=');
+		settings[keyval[0]] = keyval[1];
+	}
+	
+	this.particles = new Particles( this, settings );
+	this.scene.add(this.particles.group);
 
 	var value = this.input.value.split('');
 	for( var i = 0 ; i < value.length ; i++ ){

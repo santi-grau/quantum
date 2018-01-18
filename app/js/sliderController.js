@@ -100,7 +100,7 @@ SliderController.prototype.updateColors = function( color ) {
 
 SliderController.prototype.update = function(){
 	var value = this.bar / (this.bars.length - 1 );
-	eventEmitter.emit('updateVals', this.slug, new THREE.Vector4( value, this.min, this.max ) );
+	eventEmitter.emit('updateVals', this.slug, new THREE.Vector3( this.min + value * (this.max - this.min), this.min, this.max ) );
 }
 
 

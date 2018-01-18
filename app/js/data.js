@@ -1,6 +1,7 @@
 var Xml2json = require('xml2js');
+var font = require('./../img/df/font.fnt');
 
-var Data = function( parent, font ){
+var Data = function( parent ){
 	this.parent = parent;
 	var xml = font; // taken from http://kvazars.com/littera/
 

@@ -9,6 +9,8 @@ var ParticleMaterial = function( parent ){
 	fontTexture.needsUpdate = true;
 
 	var pointTexture = new THREE.TextureLoader().load('img/points.png');
+	pointTexture.magFilter = THREE.NearestFilter;
+	pointTexture.minFilter = THREE.NearestFilter;
 
 	var material = new THREE.ShaderMaterial( {
 		uniforms : {

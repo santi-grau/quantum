@@ -86,6 +86,9 @@ void main() {
 	float oy = map( oscillation, oNoise ) * snoise( vec2( position.y * 100.0, time ) );
 	p.xy += vec2( ox, oy );
 
+	p.x *= settings.y;
+	p.y *= settings.y;
+
 	// pointSize
 	float pNoise = ( snoise( vec2( position.x / 0.01, position.y / 0.01 ) ) + 1.0 ) / 2.0;
 	vPointSize = map( pointSize, pNoise );
