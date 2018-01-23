@@ -80,12 +80,6 @@ void main() {
 	float dy = sin( M_PI * 2.0 * transform.z ) * dVal;
 	p.xy += vec2( dx, dy );
 
-	// origin variation
-	float ovNoise = snoise( vec2( seeds.w, seeds.z ) ) ;
-	float ovx = map( oscillation, ovNoise ) * snoise( vec2( position.x * 100.0, time ) );
-	float ovy = map( oscillation, ovNoise ) * snoise( vec2( position.y * 100.0, time ) );
-	p.xy += vec2( ovx * 2.0, ovy * 2.0 );
-
 	// oscillation
 	float oNoise = snoise( vec2( seeds.z, seeds.w ) ) ;
 	float ox = map( oscillation, oNoise ) * snoise( vec2( position.x * 100.0, time ) );

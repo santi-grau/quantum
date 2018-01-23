@@ -15,6 +15,7 @@ var Main = function() {
 	this.element = document.getElementById('main');
 	this.input = document.getElementById('input');
 	this.download = document.getElementById('download');
+	this.intro = document.getElementById('intro');
 
 	// properties
 	this.controllers = [];
@@ -38,6 +39,10 @@ var Main = function() {
 	// listen for download request
 	this.download.addEventListener('mousedown', this.downloadFile.bind(this) );
 	eventEmitter.on('updateVals', this.updateVals.bind(this) );
+
+	setTimeout( function(){
+		this.intro.classList.remove('active')
+	}, 4000)
 	// initialize
 	this.resize();
 	this.step();
@@ -137,13 +142,6 @@ Main.prototype.downloadFile = function(){
 			var dy = Math.sin( Math.PI * 2 * -transform[ tCounter + 2 ] ) * dVal;
 			px += dx;
 			py += dy;
-
-			// origin variation
-			var ovNoise = noise.snoise( seeds[ tCounter + 3 ], seeds[ tCounter + 2 ] );
-			var ovx = map( oscillation, ovNoise ) * noise.snoise( particles[ i ] * 100, time );
-			var ovy = map( oscillation, ovNoise ) * noise.snoise( particles[ i + 1 ] * 100, time );
-			px += ovx * 2;
-			py += ovy * 2;
 
 			// oscillation
 			var oNoise = noise.snoise( seeds[ tCounter + 2 ], seeds[ tCounter + 3 ] ) ;
