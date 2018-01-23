@@ -61,7 +61,7 @@ ParticleGeometry.prototype.addLetter = function( char ) {
 		var val = charData.imgData.data[ ( ( Math.floor( py * charData.height ) * ( charData.imgData.width * 4 ) ) + ( Math.floor( px * charData.width ) * 4 ) ) + 3 ];
 		if( val > 0 ) this.geometry.attributes.position.setXY( particleOffset + (partsPlaced++), px, py );
 		else safeCount++;
-		if( safeCount > 100000 ) break;
+		if( safeCount > 100000 ) this.geometry.attributes.position.setXY( particleOffset + (partsPlaced++), px, py );
 	}
 	for( var i = partsPlaced ; i < this.parent.settings.letterRes * this.parent.settings.letterRes ; i++ ){
 		this.geometry.attributes.position.setXY( particleOffset + i, 0, 0 );
@@ -71,6 +71,7 @@ ParticleGeometry.prototype.addLetter = function( char ) {
 	this.geometry.setDrawRange( 0, this.parent.settings.letterRes * this.parent.settings.letterRes * totalLetters );
 
 	this.letterOffset += parseInt( charData.width );
+	// console.log(this.letters.length)
 };
 
 ParticleGeometry.prototype.removeLetter = function( ) {

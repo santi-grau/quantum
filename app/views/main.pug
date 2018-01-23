@@ -9,7 +9,7 @@ html
     link(rel='stylesheet', id='mainStylesheet' href='css/main.css')
   body
     #main
-        input#input( autofocus = 'true', maxlength = '16', value = 'hello' )
+        input#input( maxlength = '16', value = 'Hello' )
         #topControls
             div.controller( data-type = 'slider', data-label = 'Font Size', data-slug = 'scale' )
             div.controller( data-type = 'slider', data-label = 'Font Weight', data-slug = 'weight' )
@@ -20,4 +20,5 @@ html
             div.controller( data-type = 'range', data-label = 'Dispersion', data-slug = 'dispersion' )
             div.controller( data-type = 'color', data-label = 'Color', data-slug = 'color' )
             div.controller( data-type = 'color', data-label = 'Background', data-slug = 'backgroundColor' )
+            a#download( href='javascript:void(0)' ) #[br] Download
     script(src='js/main.js')    
