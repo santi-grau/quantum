@@ -132,11 +132,7 @@ module.exports = function( self ){
 			var maxy = Math.max( maxy, p1 );
 		}
 
-
-		console.log(minx, maxx, miny, maxy)
-
 		var scale = doc.page.width / ( maxx - minx ) * 0.8;
-		console.log(scale)
 		var w = ( maxx - minx ) * scale;
 		var h = ( maxy - miny ) * scale;
 		var tx = ( doc.page.width - w ) / 2;
