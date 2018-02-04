@@ -8,7 +8,7 @@ var Particles = function( parent, settings ){
 
 	this.time = 1;
 
-	this.settings.letterRes = this.settings.letterRes || 64; // 32, 64, 128, 256, 512
+	this.settings.letterRes = this.settings.letterRes || 128; // 32, 64, 128, 256, 512
 
 	this.settings.scale = this.settings.scale || new THREE.Vector3( 0.33, 0.5, 2 ); // scale of the letters ( size )
 	this.settings.weight = this.settings.weight || new THREE.Vector3( 0.5, 0, 1 ); // weight of letters
